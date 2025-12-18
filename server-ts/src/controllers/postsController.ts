@@ -1,36 +1,59 @@
-import { Request, Response } from 'express';
-import Post from '../models/Post';
-import { AuthRequest } from '../utils/auth';
+import { Request, Response } from "express";
+import Post from "../models/Post";
+import { AuthRequest } from "../middleware/auth";
 
-export const createPost = async (req: AuthRequest, res: Response) => {
-  try {
-    const { title, content } = req.body;
-    const author = req.userId;
-    if (!author) return res.status(401).json({ message: 'Unauthorized' });
-    const excerpt = content.slice(0, 200);
-    const post = await Post.create({ title, content, author, excerpt });
-    res.json(post);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-export const listPosts = async (req: Request, res: Response) => {
-  try {
-    const posts = await Post.find().populate('author', 'name').sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
+export const listPosts = async (_req: Request, res: Response) => {
+  const posts = await Post.find().populate("author", "name email");
+  res.json(posts);
 };
 
 export const getPost = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const post = await Post.findById(id).populate('author', 'name');
-    if (!post) return res.status(404).json({ message: 'Not found' });
-    res.json(post);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+  const post = await Post.findById(req.params.id).populate(
+    "author",
+    "name email"
+  );
+  if (!post) return res.status(404).json({ message: "Post not found" });
+  res.json(post);
+};
+
+export const createPost = async (req: AuthRequest, res: Response) => {
+  const post = await Post.create({
+    ...req.body,
+    author: req.user.id,
+  });
+  res.json(post);
+};
+
+export const updatePost = async (req: AuthRequest, res: Response) => {
+  const post = await Post.findById(req.params.id);
+
+  if (!post) return res.status(404).json({ message: "Post not found" });
+
+  const isOwner = post.author.toString() === req.user.id;
+  const isAdmin = req.user.role === "admin";
+
+  if (!isOwner && !isAdmin) {
+    return res.status(403).json({ message: "Not allowed" });
   }
+
+  Object.assign(post, req.body);
+  await post.save();
+
+  res.json(post);
+};
+
+export const deletePost = async (req: AuthRequest, res: Response) => {
+  const post = await Post.findById(req.params.id);
+
+  if (!post) return res.status(404).json({ message: "Post not found" });
+
+  const isOwner = post.author.toString() === req.user.id;
+  const isAdmin = req.user.role === "admin";
+
+  if (!isOwner && !isAdmin) {
+    return res.status(403).json({ message: "Not allowed" });
+  }
+
+  await post.deleteOne();
+  res.json({ message: "Post deleted" });
 };
