@@ -35,14 +35,14 @@ export default async function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {stats.topAuthors.length === 0 && (
+              {stats.topAuthors?.length === 0 && (
                 <tr>
                   <td colSpan={3} style={{ padding: 12, textAlign: "center" }}>
                     No authors yet.
                   </td>
                 </tr>
               )}
-              {stats.topAuthors.map((author) => (
+              {stats.topAuthors?.map((author) => (
                 <tr key={author.authorId}>
                   <Td>{author.authorName}</Td>
                   <Td>{author.authorEmail}</Td>
@@ -71,7 +71,7 @@ export default async function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {stats.recentUsers.map((user) => (
+              {stats.recentUsers?.map((user) => (
                 <tr key={user._id}>
                   <Td>{user.name}</Td>
                   <Td>{user.email}</Td>

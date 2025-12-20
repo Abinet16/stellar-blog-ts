@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { apiPost } from "../../../lib/api";
 import { saveToken } from "../../../lib/auth";
+import { decodeJwt } from "../../../lib/jwt";
 import { useRouter } from "next/navigation";
+import { UserRole } from "../../../lib/types";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,10 +17,25 @@ export default function LoginPage() {
     setError("");
 
     try {
+      // Call backend login
       const res = await apiPost<{ token: string }>("/auth/login", form);
+
       if (res.token) {
+        // Save token
         saveToken(res.token);
-        router.push("/posts");
+
+        // Decode role from JWT
+        const payload = decodeJwt(res.token);
+        const role = payload?.role as UserRole;
+
+        // Redirect based on role
+        if (role === "admin") {
+          router.push("/admin"); // 👈 redirect admins here
+        } else {
+          router.push("/posts"); // 👈 normal users go here
+        }
+      } else {
+        setError("Login failed");
       }
     } catch {
       setError("Invalid email or password");
