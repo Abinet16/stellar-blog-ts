@@ -1,46 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { apiGet, apiPost } from "../../../../lib/api";
-import { Post } from "../../../../lib/types";
+import { useState } from "react";
+import { apiPost } from "../../../lib/api";
 import { useRouter } from "next/navigation";
-import Protected from "../../../../components/Protected";
+import Protected from "../../../components/Protected";
 
-export default function EditPostPage({ params }: { params: { id: string } }) {
+export default function NewPostPage() {
   const router = useRouter();
-  const [form, setForm] = useState<Post | null>(null);
-
-  useEffect(() => {
-    async function load() {
-      const data = await apiGet<Post>(`/posts/${params.id}`);
-      setForm(data);
-    }
-    load();
-  }, [params.id]);
+  const [form, setForm] = useState({ title: "", content: "" });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form) return;
-
-    await apiPost(`/posts/${params.id}`, form);
-    router.push(`/posts/${params.id}`);
+    const res:any = await apiPost("/posts", form);
+    if (res._id) router.push(`/posts/${res._id}`);
   }
-
-  if (!form) return <div>Loading...</div>;
 
   return (
     <Protected>
       <div style={{ maxWidth: 600, margin: "0 auto", padding: 24 }}>
-        <h1>Edit Post</h1>
+        <h1>Create New Post</h1>
 
         <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
           <input
+            placeholder="Title"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             style={{ padding: 8, border: "1px solid #ccc", borderRadius: 4 }}
           />
 
           <textarea
+            placeholder="Write your post..."
             value={form.content}
             onChange={(e) => setForm({ ...form, content: e.target.value })}
             style={{
@@ -61,7 +50,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
               border: "none",
             }}
           >
-            Save Changes
+            Publish
           </button>
         </form>
       </div>

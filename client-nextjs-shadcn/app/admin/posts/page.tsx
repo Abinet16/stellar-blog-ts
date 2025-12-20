@@ -4,28 +4,26 @@ import { useEffect, useState } from "react";
 import { apiGet } from "../../../lib/api";
 import AdminOnly from "../../../components/AdminOnly";
 
-interface AdminComment {
+interface AdminPost {
   _id: string;
-  text: string;
+  title: string;
+  excerpt: string;
   createdAt: string;
-  user: {
+  author: {
     name: string;
     email: string;
   };
-  post: {
-    title: string;
-  };
 }
 
-export default function AdminCommentsPage() {
-  const [comments, setComments] = useState<AdminComment[]>([]);
+export default function AdminPostsPage() {
+  const [posts, setPosts] = useState<AdminPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function load() {
     setLoading(true);
     try {
-      const data = await apiGet<AdminComment[]>("/comments/all");
-      setComments(data);
+      const data = await apiGet<AdminPost[]>("/posts");
+      setPosts(data);
     } finally {
       setLoading(false);
     }
@@ -38,36 +36,34 @@ export default function AdminCommentsPage() {
   return (
     <AdminOnly>
       <div style={{ display: "grid", gap: 16 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600 }}>All Comments</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 600 }}>All Posts</h2>
 
         <div style={{ border: "1px solid #ddd", borderRadius: 8 }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <Th>User</Th>
-                <Th>Email</Th>
-                <Th>Post</Th>
-                <Th>Comment</Th>
-                <Th>Date</Th>
+                <Th>Title</Th>
+                <Th>Author</Th>
+                <Th>Excerpt</Th>
+                <Th>Created</Th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={5} style={{ padding: 12, textAlign: "center" }}>
+                  <td colSpan={4} style={{ padding: 12, textAlign: "center" }}>
                     Loading...
                   </td>
                 </tr>
               )}
 
               {!loading &&
-                comments.map((c) => (
-                  <tr key={c._id}>
-                    <Td>{c.user?.name}</Td>
-                    <Td>{c.user?.email}</Td>
-                    <Td>{c.post?.title}</Td>
-                    <Td>{c.text}</Td>
-                    <Td>{new Date(c.createdAt).toLocaleDateString()}</Td>
+                posts.map((post) => (
+                  <tr key={post._id}>
+                    <Td>{post.title}</Td>
+                    <Td>{post.author?.name}</Td>
+                    <Td>{post.excerpt}</Td>
+                    <Td>{new Date(post.createdAt).toLocaleDateString()}</Td>
                   </tr>
                 ))}
             </tbody>

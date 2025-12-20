@@ -1,13 +1,34 @@
 import Link from "next/link";
-import { Post } from "../lib/types";
+import Card from "./Card";
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({
+  id,
+  title,
+  excerpt,
+  author,
+  date,
+}: {
+  id: string;
+  title: string;
+  excerpt: string;
+  author: string;
+  date: string;
+}) {
   return (
-    <div style={{ padding: 20, border: "1px solid #ccc", marginBottom: 10 }}>
-      <h2>
-        <Link href={`/posts/${post.id}`}>{post.title}</Link>
-      </h2>
-      <p>{post.content.slice(0, 120)}...</p>
-    </div>
+    <Card style={{ cursor: "pointer" }}>
+      <Link
+        href={`/posts/${id}`}
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+        <h2 style={{ fontSize: 22, fontWeight: 700 }}>{title}</h2>
+        <p style={{ marginTop: 8, color: "#555", lineHeight: 1.6 }}>
+          {excerpt}
+        </p>
+
+        <div style={{ marginTop: 12, fontSize: 14, color: "#777" }}>
+          By {author} • {new Date(date).toLocaleDateString()}
+        </div>
+      </Link>
+    </Card>
   );
 }
