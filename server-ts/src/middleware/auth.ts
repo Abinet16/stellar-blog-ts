@@ -20,6 +20,7 @@ export function requireAuth(
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     req.user = decoded;
+   console.log("Decoded JWT:", req.user);
     next();
   } catch {
     return res.status(401).json({ message: "Invalid token" });

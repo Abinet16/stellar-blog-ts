@@ -23,8 +23,15 @@ export const login = async (req: Request, res: Response) => {
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    if (user.isBanned) {
+      return res.status(403).json({ message: "Your account has been banned" });
+    }
+
     const match = await user.comparePassword(req.body.password);
     if (!match) return res.status(400).json({ message: "Invalid credentials" });
+
+    user.lastLoginAt = new Date();
+    await user.save();
 
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
