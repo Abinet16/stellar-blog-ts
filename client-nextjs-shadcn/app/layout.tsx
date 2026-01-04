@@ -16,14 +16,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
-          <ThemeProvider>
+        <ThemeProvider>
+          <QueryProvider>
             <AuthProvider>
               <Navbar />
               <main style={{ padding: 20 }}>{children}</main>
             </AuthProvider>
-          </ThemeProvider>
-        </QueryProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
