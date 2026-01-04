@@ -24,7 +24,7 @@ export default function Navbar() {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        background: "var(--nav-bg, #fff)",
+        background: "var(--nav-bg, #1169a0ff)",
       }}
     >
       <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
